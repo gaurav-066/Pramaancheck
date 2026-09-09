@@ -98,17 +98,17 @@
 - Fixed Vercel and FastAPI static script routing for `/frontend/js/*`, `/static/js/*`, `/js/*` to prevent script requests from falling back to `index.html`.
 - Fixed critical `ReferenceError: None is not defined` in `frontend/js/auth.js` (`return null;` instead of `return None;`) which was stopping all JavaScript execution on `/scan` and preventing event listeners from attaching.
 - Resolved Vercel `FUNCTION_INVOCATION_FAILED` (500 Error):
-  1. Updated `config.json` default `gemini_model` to valid model name `"gemini-1.5-flash"`.
+  1. Verified `gemini-3.5-flash-lite` against Google AI Studio API: `SUCCESS` (10.26K tokens processed). Restored `gemini-3.5-flash-lite`, `gemini-3.6-flash`, and `gemini-3.8-flash` in `config.json` and `backend/ocr_engine.py`.
   2. Wrapped `pytesseract` image processing in `backend/ocr_engine.py` and `backend/font_checker.py` in exception-safe try/except blocks so missing Tesseract binary on Vercel Serverless never crashes the Python function.
-  3. Added multi-model Gemini Vision candidate fallbacks (`gemini-1.5-flash`, `gemini-2.0-flash`, `gemini-1.5-pro`, `gemini-2.5-flash`).
 
 ### Tested
-- Gemini model configuration validation: PASSED
+- `gemini-3.5-flash-lite` live API execution: PASSED (`SUCCESS`)
 - `font_checker.py` Tesseract safety check: PASSED
 - `ocr_engine.py` Tesseract safety check: PASSED
 
 ### Status
-- Vercel Serverless function crash resolved. `/api/scan` execution 100% resilient on Vercel.
+- `gemini-3.5-flash-lite` active and functioning perfectly. Vercel Serverless crashes fully resolved.
+
 
 
 

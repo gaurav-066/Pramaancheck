@@ -108,15 +108,15 @@ def extract_declarations(image_path: str) -> dict:
     """
     config = load_config()
     api_key = os.environ.get("GEMINI_API_KEY") or config.get("gemini_api_key", "")
-    primary_model = config.get("gemini_model", "gemini-1.5-flash")
+    primary_model = config.get("gemini_model", "gemini-3.5-flash-lite")
 
     # If API key is placeholder or missing, fallback to Tesseract directly
     if not api_key or api_key == "PASTE_YOUR_KEY_HERE":
         print("[OCR Engine] Gemini API key not configured. Using fallback OCR.")
         return extract_declarations_tesseract(image_path, config)
 
-    # Candidate Gemini models in order of attempt
-    candidate_models = [primary_model, "gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro", "gemini-2.5-flash"]
+    # Candidate Gemini models in order of attempt (matching Google AI Studio project access)
+    candidate_models = [primary_model, "gemini-3.5-flash-lite", "gemini-3.6-flash", "gemini-3.8-flash", "gemini-flash-latest"]
     # De-duplicate candidate list while keeping order
     seen = set()
     candidate_models = [m for m in candidate_models if not (m in seen or seen.add(m))]
