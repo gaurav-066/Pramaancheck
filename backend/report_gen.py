@@ -92,6 +92,12 @@ def generate_pdf_report(scan_data: Dict[str, Any], output_path: Optional[str] = 
         f"Compliance Score: {scan_data.get('compliance_score', 0)}%",
         new_x="LMARGIN", new_y="NEXT"
     )
+    note = scan_data.get('note')
+    if note:
+        pdf.set_font("Helvetica", "B", 10)
+        pdf.cell(35, 6, "Investigation Note: ")
+        pdf.set_font("Helvetica", "", 10)
+        pdf.multi_cell(0, 6, _safe(note), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(6)
 
     # ── Rule 7 Font Height Section ────────────────────────────────────────
