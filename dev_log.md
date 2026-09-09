@@ -79,8 +79,9 @@
 - Dark radial vignette overlay & text shadow contrast boost (`#e2e8f0` text shadow): PASSED
 - Removal of 3-dot (`::after`) active navbar indicator: PASSED
 - Live Device Camera Stream & Photo Snapshot feature (`getUserMedia` API): PASSED
+- Vercel routing configuration (`vercel.json`) & serverless `/tmp` database path support: PASSED
 - Git repository initialization and push to GitHub (`https://github.com/gaurav-066/Pramaancheck.git`): PASSED
 - Comprehensive project summary artifact generated (`pramaancheck_project_summary.md`): PASSED
 
 ### Status
-- Complete PramaanCheck Legal Metrology AI Platform with deep knowledge summary artifact ready for team AI agent sharing.
+- Vercel deployment route fixes (`/scan`, `/dashboard`, `/login`, `/api/*`) pushed to GitHub. Ready for live Vercel deployment.
