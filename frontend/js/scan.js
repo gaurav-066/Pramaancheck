@@ -183,14 +183,20 @@ async function runLabelScan() {
       body: formData
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get('content-type') || '';
+    const isJson = contentType.includes('application/json');
+    const data = isJson ? await response.json() : null;
+
     if (!response.ok) {
-      throw new Error(data.detail || 'Scan processing failed');
+      const errorDetail = (data && data.detail) ? data.detail : `Server error (${response.status})`;
+      throw new Error(errorDetail);
     }
 
-    renderScanResults(data);
+    if (data) {
+      renderScanResults(data);
+    }
   } catch (err) {
-    scanAlert.textContent = err.message;
+    scanAlert.textContent = err.message || 'Scan evaluation failed';
     scanAlert.style.display = 'block';
     document.getElementById('results-placeholder').style.display = 'block';
   } finally {

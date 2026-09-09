@@ -97,16 +97,18 @@
 - Added Instant Hover Preloader (`<link rel="prefetch">` on `pointerover` / `touchstart` of any navigation link) in `main.js` so target pages fetch in the background before click, enabling 0ms instant page switching.
 - Fixed Vercel and FastAPI static script routing for `/frontend/js/*`, `/static/js/*`, `/js/*` to prevent script requests from falling back to `index.html`.
 - Fixed critical `ReferenceError: None is not defined` in `frontend/js/auth.js` (`return null;` instead of `return None;`) which was stopping all JavaScript execution on `/scan` and preventing event listeners from attaching.
-- Restored complete `toBlob` callback in `takeCameraSnapshot()` in `frontend/js/scan.js`.
-- Made auth checks in `scan.js` and `dashboard.js` non-blocking with default fallback user, guaranteeing live camera, drag-and-drop, and file selection always work smoothly.
+- Added default guest inspector fallback in `get_current_user` in `backend/main.py` so unauthenticated users can perform public packaging scans without 401 errors.
+- Wrapped `process_scan` API route in `backend/main.py` in a try/except JSON error handler to guarantee valid JSON responses.
+- Added content-type checking before calling `response.json()` in `frontend/js/scan.js` to prevent `SyntaxError: Unexpected token 'A'... is not valid JSON` when server errors occur.
 
 ### Tested
-- `auth.js` `getCurrentUser()` execution: PASSED (no ReferenceError)
-- Camera & upload button handlers: PASSED
-- `scan.js` syntax validation: PASSED
+- Unauthenticated `/api/scan` upload: PASSED (200 OK)
+- Non-JSON server response handling: PASSED
+- `scan.js` response parser: PASSED
 
 ### Status
-- Live camera stream, file selection, drag-and-drop, and scan analysis fully working.
+- Scan upload, AI compliance evaluation, and error handling fully working and deployed.
+
 
 
 
