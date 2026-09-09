@@ -8,15 +8,9 @@
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index.py" },
-    { "src": "/js/(.*)",  "dest": "/frontend/js/$1" },
-    { "src": "/fonts/(.*)", "dest": "/frontend/fonts/$1" },
-    { "src": "/assets/(.*)", "dest": "/frontend/assets/$1" },
-    { "src": "/styles\\.css", "dest": "/frontend/styles.css" },
-    { "src": "/main\\.js",  "dest": "/frontend/main.js" },
-    { "src": "/scan",      "dest": "/frontend/scan.html" },
-    { "src": "/login",     "dest": "/frontend/login.html" },
-    { "src": "/dashboard", "dest": "/frontend/dashboard.html" },
-    { "src": "/",          "dest": "/frontend/index.html" }
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.py"
+    }
   ]
 }
