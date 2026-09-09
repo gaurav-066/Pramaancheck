@@ -120,6 +120,7 @@ async def me(current_user: dict = Depends(get_current_user)):
 async def process_scan(
     file: UploadFile = File(...),
     card_corners: Optional[str] = Form(None),
+    note: Optional[str] = Form(None),
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -167,7 +168,8 @@ async def process_scan(
         declarations=declarations,
         rule_results=rule_results,
         font_check=font_check,
-        user_role=current_user.get("role", "inspector")
+        user_role=current_user.get("role", "inspector"),
+        note=note
     )
 
     # Step 5: Generate PDF in-memory on this same instance (avoids Vercel Lambda isolation)
@@ -181,6 +183,7 @@ async def process_scan(
         "compliance_score": rule_results["compliance_score"],
         "rule_results": rule_results,
         "font_check": font_check,
+        "note": note,
     }
     try:
         pdf_b64 = generate_pdf_base64(pdf_scan_data)
@@ -198,6 +201,7 @@ async def process_scan(
         "rule_results": rule_results,
         "font_check": font_check,
         "pdf_base64": pdf_b64,
+        "note": note,
     }
 
 @app.get("/api/dashboard/stats")
