@@ -1,27 +1,18 @@
 // PramaanCheck - Dashboard Overview Controller
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Check user authentication safely
-  let currentUser = null;
-  try {
-    currentUser = await getCurrentUser();
-  } catch (e) {
-    console.warn("Dashboard auth check:", e);
-  }
-
+  // Check user authentication
+  const currentUser = await getCurrentUser();
   if (!currentUser) {
-    currentUser = { name: 'Inspector', username: 'inspector', role: 'inspector' };
+    window.location.href = '/login';
+    return;
   }
 
   // Set navbar user details
-  const userNameElem = document.getElementById('user-name');
-  if (userNameElem) userNameElem.textContent = currentUser.name || currentUser.username;
-  
+  document.getElementById('user-name').textContent = currentUser.name || currentUser.username;
   const roleElem = document.getElementById('user-role');
-  if (roleElem) {
-    roleElem.textContent = currentUser.role;
-    roleElem.className = `user-role-tag role-${currentUser.role}`;
-  }
+  roleElem.textContent = currentUser.role;
+  roleElem.className = `user-role-tag role-${currentUser.role}`;
 
   // Load metrics & table data
   await loadDashboardStats();
@@ -49,13 +40,13 @@ async function loadRecentScans() {
   try {
     const response = await fetch('/api/scans/recent', { credentials: 'same-origin' });
     if (!response.ok) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--status-fail-text);">Failed to load recent scans</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--status-fail-text);">Failed to load recent scans</td></tr>';
       return;
     }
 
     const scans = await response.json();
     if (scans.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding: 30px;">No inspection scans found yet. Click "+ New Label Scan" to perform your first scan.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding: 30px;">No inspection scans found yet. Click "+ New Label Scan" to perform your first scan.</td></tr>';
       return;
     }
 
@@ -72,12 +63,15 @@ async function loadRecentScans() {
         badgeClass = 'badge-warn';
         icon = '⚠';
       }
+      
+      const noteHtml = scan.note ? `<span style="font-size: 12px; font-style: italic; color: #a1a1aa;">${scan.note}</span>` : `<span style="color: rgba(255,255,255,0.1);">-</span>`;
 
       tr.innerHTML = `
         <td style="font-family: var(--font-mono); font-weight: 600;">#${scan.id}</td>
         <td>
           <div style="font-weight: 500; color: var(--text-primary);">${scan.image_name}</div>
         </td>
+        <td>${noteHtml}</td>
         <td>
           <span class="badge ${badgeClass}">${icon} ${scan.overall_status}</span>
         </td>
@@ -96,6 +90,6 @@ async function loadRecentScans() {
     });
   } catch (err) {
     console.error('Error loading recent scans:', err);
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--status-fail-text);">Error loading scan history</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--status-fail-text);">Error loading scan history</td></tr>';
   }
 }
