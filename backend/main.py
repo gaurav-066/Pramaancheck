@@ -23,7 +23,7 @@ from backend.auth import authenticate_user, create_session_token, verify_session
 from backend.ocr_engine import extract_declarations
 from backend.rule_engine import evaluate_compliance
 from backend.font_checker import verify_font_sizes
-from backend.report_gen import generate_pdf_report
+from backend.report_gen import generate_pdf_report, generate_pdf_base64
 import backend.database as db
 
 # Paths setup
@@ -31,31 +31,20 @@ BASE_DIR = Path(__file__).parent
 CONFIG_PATH = BASE_DIR / "config.json"
 
 def load_config():
-    paths_to_check = [
-        BASE_DIR / "config.json",
-        BASE_DIR.parent / "config.json",
-        Path("/var/task/backend/config.json"),
-        Path("/var/task/config.json"),
-        Path("backend/config.json"),
-        Path("config.json")
-    ]
-    for p in paths_to_check:
-        if p.exists():
-            try:
-                with open(p, "r", encoding="utf-8") as f:
-                    return json.load(f)
-            except Exception:
-                pass
-    return {
-        "session_secret": "pramaancheck-secret-key-change-in-production",
-        "session_max_age_hours": 24,
-        "max_upload_size_mb": 10,
-        "gemini_model": "gemini-3.5-flash-lite"
-    }
+    if CONFIG_PATH.exists():
+        try:
+            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
 
 config = load_config()
 
-if os.environ.get("VERCEL"):
+# On Vercel, only /tmp is writable. Use it for uploads and reports.
+_is_vercel = bool(os.environ.get("VERCEL") or os.environ.get("VERCEL_ENV"))
+
+if _is_vercel:
     UPLOAD_DIR = Path("/tmp/uploads")
     REPORT_DIR = Path("/tmp/reports")
 else:
@@ -67,31 +56,22 @@ FRONTEND_DIR = (BASE_DIR / "../frontend").resolve()
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 REPORT_DIR.mkdir(parents=True, exist_ok=True)
 
-
-from fastapi.middleware.gzip import GZipMiddleware
-
 app = FastAPI(title="PramaanCheck API", version="1.0.0")
-
-# Enable HTTP GZip compression for instant asset delivery & fast JSON payloads
-app.add_middleware(GZipMiddleware, minimum_size=500)
 
 # Initialize SQLite Database on startup
 @app.on_event("startup")
 def startup_event():
     db.init_db()
 
-
 # Session auth dependency
 def get_current_user(request: Request):
-    try:
-        token = request.cookies.get("session_token") or request.headers.get("Authorization", "").replace("Bearer ", "")
-        if token:
-            payload = verify_session_token(token)
-            if payload:
-                return payload
-    except Exception as err:
-        print(f"[Auth Dependency Error]: {err}")
-    return {"username": "inspector", "role": "inspector", "name": "Field Inspector"}
+    token = request.cookies.get("session_token") or request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    payload = verify_session_token(token)
+    if not payload:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired session")
+    return payload
 
 # ------------------------------------------------------------------------------
 # Authentication Routes
@@ -113,7 +93,7 @@ async def login(credentials: dict, response: Response):
         key="session_token",
         value=token,
         httponly=True,
-        max_age=config.get("session_max_age_hours", 24) * 3600,
+        max_age=int(os.environ.get("SESSION_MAX_AGE_HOURS", config.get("session_max_age_hours", 24))) * 3600,
         samesite="lax"
     )
 
@@ -147,68 +127,78 @@ async def process_scan(
     evaluates Legal Metrology Rule 6 compliance, performs Rule 7 font check,
     and stores scan in database.
     """
+    # Check max file size
+    max_mb = int(os.environ.get("MAX_UPLOAD_SIZE_MB", config.get("max_upload_size_mb", 10)))
+    contents = await file.read()
+    if len(contents) > max_mb * 1024 * 1024:
+        raise HTTPException(status_code=400, detail=f"File exceeds maximum allowed size of {max_mb} MB")
+
+    # Generate unique filename & save file
+    file_ext = Path(file.filename).suffix or ".jpg"
+    unique_filename = f"{uuid.uuid4().hex}{file_ext}"
+    saved_image_path = UPLOAD_DIR / unique_filename
+
+    with open(saved_image_path, "wb") as f:
+        f.write(contents)
+
+    # Parse optional card corners JSON
+    parsed_corners = None
+    if card_corners:
+        try:
+            parsed_corners = json.loads(card_corners)
+        except Exception:
+            parsed_corners = None
+
+    # Step 1: OCR Extraction
+    declarations = extract_declarations(str(saved_image_path))
+
+    # Step 2: Rule 6 Compliance Evaluation
+    rule_results = evaluate_compliance(declarations)
+
+    # Step 3: Rule 7 Font Size Check
+    font_check = verify_font_sizes(str(saved_image_path), declarations, parsed_corners)
+
+    # Step 4: Save result to Database
+    scan_id = db.save_scan(
+        image_name=file.filename,
+        image_path=f"/uploads/{unique_filename}",
+        overall_status=rule_results["overall_status"],
+        compliance_score=rule_results["compliance_score"],
+        declarations=declarations,
+        rule_results=rule_results,
+        font_check=font_check,
+        user_role=current_user.get("role", "inspector")
+    )
+
+    # Step 5: Generate PDF in-memory on this same instance (avoids Vercel Lambda isolation)
+    import datetime
+    pdf_scan_data = {
+        "id": scan_id,
+        "image_name": file.filename,
+        "user_role": current_user.get("role", "inspector"),
+        "created_at": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+        "overall_status": rule_results["overall_status"],
+        "compliance_score": rule_results["compliance_score"],
+        "rule_results": rule_results,
+        "font_check": font_check,
+    }
     try:
-        # Check max file size
-        max_mb = config.get("max_upload_size_mb", 10)
-        contents = await file.read()
-        if len(contents) > max_mb * 1024 * 1024:
-            raise HTTPException(status_code=400, detail=f"File exceeds maximum allowed size of {max_mb} MB")
+        pdf_b64 = generate_pdf_base64(pdf_scan_data)
+    except Exception as pdf_err:
+        print(f"[PDF] Generation error: {pdf_err}")
+        pdf_b64 = None
 
-        # Generate unique filename & save file
-        file_ext = Path(file.filename).suffix or ".jpg"
-        unique_filename = f"{uuid.uuid4().hex}{file_ext}"
-        saved_image_path = UPLOAD_DIR / unique_filename
-
-        with open(saved_image_path, "wb") as f:
-            f.write(contents)
-
-        # Parse optional card corners JSON
-        parsed_corners = None
-        if card_corners:
-            try:
-                parsed_corners = json.loads(card_corners)
-            except Exception:
-                parsed_corners = None
-
-        # Step 1: OCR Extraction
-        declarations = extract_declarations(str(saved_image_path))
-
-        # Step 2: Rule 6 Compliance Evaluation
-        rule_results = evaluate_compliance(declarations)
-
-        # Step 3: Rule 7 Font Size Check
-        font_check = verify_font_sizes(str(saved_image_path), declarations, parsed_corners)
-
-        # Step 4: Save result to Database
-        scan_id = db.save_scan(
-            image_name=file.filename,
-            image_path=f"/uploads/{unique_filename}",
-            overall_status=rule_results["overall_status"],
-            compliance_score=rule_results["compliance_score"],
-            declarations=declarations,
-            rule_results=rule_results,
-            font_check=font_check,
-            user_role=current_user.get("role", "inspector")
-        )
-
-        return {
-            "status": "success",
-            "scan_id": scan_id,
-            "image_url": f"/uploads/{unique_filename}",
-            "overall_status": rule_results["overall_status"],
-            "compliance_score": rule_results["compliance_score"],
-            "declarations": declarations,
-            "rule_results": rule_results,
-            "font_check": font_check
-        }
-    except HTTPException:
-        raise
-    except Exception as err:
-        print(f"Error during scan processing: {err}")
-        return JSONResponse(
-            status_code=500,
-            content={"detail": f"Scan processing error: {str(err)}"}
-        )
+    return {
+        "status": "success",
+        "scan_id": scan_id,
+        "image_url": f"/uploads/{unique_filename}",
+        "overall_status": rule_results["overall_status"],
+        "compliance_score": rule_results["compliance_score"],
+        "declarations": declarations,
+        "rule_results": rule_results,
+        "font_check": font_check,
+        "pdf_base64": pdf_b64,
+    }
 
 @app.get("/api/dashboard/stats")
 async def dashboard_stats(current_user: dict = Depends(get_current_user)):
@@ -227,19 +217,24 @@ async def get_scan_details(scan_id: int, current_user: dict = Depends(get_curren
 
 @app.get("/api/reports/download/{scan_id}")
 async def download_report(scan_id: int, current_user: dict = Depends(get_current_user)):
+    db.init_db()  # Ensure table exists — cold Lambda instances won't have it
     scan = db.get_scan_by_id(scan_id)
     if not scan:
         raise HTTPException(status_code=404, detail="Scan not found")
 
-    pdf_filename = f"scan_report_{scan_id}.pdf"
-    pdf_path = REPORT_DIR / pdf_filename
+    try:
+        pdf_bytes = generate_pdf_report(scan)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
 
-    generate_pdf_report(scan, str(pdf_path))
-
-    return FileResponse(
-        pdf_path,
+    pdf_filename = f"pramaancheck_scan_{scan_id}.pdf"
+    return Response(
+        content=pdf_bytes,
         media_type="application/pdf",
-        filename=pdf_filename
+        headers={
+            "Content-Disposition": f'attachment; filename="{pdf_filename}"',
+            "Content-Length": str(len(pdf_bytes)),
+        }
     )
 
 # ------------------------------------------------------------------------------
@@ -248,11 +243,6 @@ async def download_report(scan_id: int, current_user: dict = Depends(get_current
 
 if FRONTEND_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
-
-    js_dir = FRONTEND_DIR / "js"
-    if js_dir.exists():
-        app.mount("/frontend/js", StaticFiles(directory=str(js_dir)), name="frontend_js")
-        app.mount("/js", StaticFiles(directory=str(js_dir)), name="js")
 
     assets_dir = FRONTEND_DIR / "assets"
     if assets_dir.exists():
