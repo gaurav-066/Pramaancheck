@@ -1,0 +1,28 @@
+{
+  "gemini_api_key": "PASTE_YOUR_KEY_HERE",
+  "gemini_model": "gemini-2.0-flash-lite",
+  "session_secret": "pramaancheck-change-in-production",
+  "session_max_age_hours": 24,
+  "max_upload_size_mb": 10,
+  "upload_dir": "../uploads",
+  "report_dir": "../reports",
+  "db_path": "../pramaancheck.db",
+  "tesseract_cmd": "/usr/bin/tesseract",
+  "users": {
+    "admin": {
+      "password": "admin123",
+      "role": "admin",
+      "name": "Admin Authority"
+    },
+    "inspector": {
+      "password": "inspect123",
+      "role": "inspector",
+      "name": "Inspector Sharma"
+    },
+    "viewer": {
+      "password": "view123",
+      "role": "viewer",
+      "name": "Viewer Patel"
+    }
+  }
+}
