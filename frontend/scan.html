@@ -144,6 +144,14 @@
               </div>
             </div>
           </div>
+          
+          <!-- Investigation Note Section -->
+          <div style="margin-top: 18px;">
+            <label for="investigation-note" style="display: block; font-weight: 600; font-size: 11px; font-family: var(--font-sans); text-transform: uppercase; color: var(--trust-text); margin-bottom: 6px;">
+              3. Investigation Title / Note (Optional)
+            </label>
+            <input type="text" id="investigation-note" placeholder="e.g. Case #1042 - XYZ Retailer Audit" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; font-family: var(--font-sans); font-size: 13px;" />
+          </div>
 
           <button type="button" id="start-scan-btn" class="auth-submit-btn" style="margin-top: 18px;" onclick="runLabelScan()" disabled>
             ANALYZE PRODUCT COMPLIANCE
@@ -212,7 +220,7 @@
             <!-- Action Toolbar -->
             <div style="margin-top: 20px;">
               <a id="download-report-btn" href="#" target="_blank" class="auth-submit-btn" style="text-decoration: none; display: none; align-items: center; justify-content: center; gap: 8px;">
-                📄 DOWNLOAD OFFICIAL GAZETTE PDF REPORT
+                📄 DOWNLOAD OFFICER INSPECTION REPORT
               </a>
             </div>
           </div>
@@ -238,7 +246,7 @@
 
         <div class="rule-card">
           <h4>Rule 7 — Height &amp; Width Ratio of Numerals &amp; Letters</h4>
-          <p>Minimum height of numerals and letters depending on net quantity (e.g., &le;50g/ml: 1mm, &gt;50g/ml to 200g/ml: 2mm, &gt;200g/ml to 1kg/l: 4mm, &gt;1kg/l: 6mm). Width ratio to height must not be less than 1:3.</p>
+          <p>Minimum height of numerals and letters based on net quantity: up to 200g/ml → 1mm; 200g to 500g/ml → 2mm; above 500g/ml → 4mm (double for molded/embossed print). Width ratio to height must not be less than 1:3.</p>
         </div>
 
         <div class="rule-card">
