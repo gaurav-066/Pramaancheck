@@ -43,9 +43,16 @@ def init_db():
                 rule_results_json TEXT NOT NULL,
                 font_check_json TEXT NOT NULL,
                 user_role TEXT DEFAULT 'inspector',
+                note TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        # Migrate existing database
+        try:
+            cursor.execute("ALTER TABLE scans ADD COLUMN note TEXT")
+        except sqlite3.OperationalError:
+            pass # Column already exists
+
         conn.commit()
 
 def save_scan(
@@ -56,19 +63,17 @@ def save_scan(
     declarations: Dict[str, Any],
     rule_results: Dict[str, Any],
     font_check: Dict[str, Any],
-    user_role: str = "inspector"
+    user_role: str = "inspector",
+    note: str = None
 ) -> int:
-    """
-    Saves scan result to SQLite database. Returns inserted scan ID.
-    """
-    db_path = get_db_path()
-    with sqlite3.connect(db_path) as conn:
+    init_db()
+    with sqlite3.connect(get_db_path()) as conn:
         cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO scans (
                 image_name, image_path, overall_status, compliance_score,
-                declarations_json, rule_results_json, font_check_json, user_role
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                declarations_json, rule_results_json, font_check_json, user_role, note
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             image_name,
             image_path,
@@ -77,7 +82,8 @@ def save_scan(
             json.dumps(declarations),
             json.dumps(rule_results),
             json.dumps(font_check),
-            user_role
+            user_role,
+            note
         ))
         conn.commit()
         return cursor.lastrowid
@@ -95,7 +101,7 @@ def get_recent_scans(limit: int = 10) -> List[Dict[str, Any]]:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT id, image_name, image_path, overall_status, compliance_score,
-                   user_role, created_at
+                   user_role, note, created_at
             FROM scans
             ORDER BY id DESC
             LIMIT ?
