@@ -167,6 +167,11 @@ async function runLabelScan() {
     formData.append('card_corners', JSON.stringify(originalPoints));
   }
 
+  const noteInput = document.getElementById('investigation-note');
+  if (noteInput && noteInput.value.trim() !== '') {
+    formData.append('note', noteInput.value.trim());
+  }
+
   try {
     const response = await fetch('/api/scan', {
       method: 'POST',
