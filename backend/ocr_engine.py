@@ -105,8 +105,9 @@ def extract_declarations(image_path: str) -> dict:
     Tries Gemini Vision API primary and fallback models. Falls back to Tesseract OCR if API key fails.
     """
     config = load_config()
-    api_key = config.get("gemini_api_key", "")
+    api_key = os.environ.get("GEMINI_API_KEY") or config.get("gemini_api_key", "")
     primary_model = config.get("gemini_model", "gemini-3.5-flash-lite")
+
 
     # If API key is placeholder or missing, fallback to Tesseract directly
     if not api_key or api_key == "PASTE_YOUR_KEY_HERE":

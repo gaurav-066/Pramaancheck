@@ -12,8 +12,9 @@ def load_config():
 
 config = load_config()
 
-SECRET_KEY = config.get("session_secret", "pramaancheck-secret-key")
+SECRET_KEY = os.environ.get("SECRET_KEY") or os.environ.get("SESSION_SECRET") or config.get("session_secret", "pramaancheck-secret-key")
 SERIALIZER = URLSafeTimedSerializer(SECRET_KEY)
+
 MAX_AGE_SECONDS = config.get("session_max_age_hours", 24) * 3600
 USERS = config.get("users", {})
 
