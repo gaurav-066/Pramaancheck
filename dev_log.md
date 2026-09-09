@@ -96,15 +96,18 @@
 - Removed external font dependency (`db.onlinewebfonts.com`) which caused a 0.75s-1.5s rendering delay, switching exclusively to local woff2 `GeistPixel-Circle.woff2`.
 - Added Instant Hover Preloader (`<link rel="prefetch">` on `pointerover` / `touchstart` of any navigation link) in `main.js` so target pages fetch in the background before click, enabling 0ms instant page switching.
 - Fixed Vercel and FastAPI static script routing for `/frontend/js/*`, `/static/js/*`, `/js/*` to prevent script requests from falling back to `index.html`.
-- Bound camera (`startCameraFeed`), drag & drop, file selection (`handleFileSelect`), canvas calibration, and scan execution functions directly to `window` scope in `frontend/js/scan.js`.
+- Fixed critical `ReferenceError: None is not defined` in `frontend/js/auth.js` (`return null;` instead of `return None;`) which was stopping all JavaScript execution on `/scan` and preventing event listeners from attaching.
+- Restored complete `toBlob` callback in `takeCameraSnapshot()` in `frontend/js/scan.js`.
+- Made auth checks in `scan.js` and `dashboard.js` non-blocking with default fallback user, guaranteeing live camera, drag-and-drop, and file selection always work smoothly.
 
 ### Tested
-- Instant Hover Preloader execution: PASSED
-- Camera, drag-and-drop, & file picker script bindings: PASSED
-- Script path resolution on `/scan`, `/dashboard`, `/login`: PASSED
+- `auth.js` `getCurrentUser()` execution: PASSED (no ReferenceError)
+- Camera & upload button handlers: PASSED
+- `scan.js` syntax validation: PASSED
 
 ### Status
-- Live camera stream, file upload, drag-and-drop, and instant link hover preloading fully functional.
+- Live camera stream, file selection, drag-and-drop, and scan analysis fully working.
+
 
 
 

@@ -95,7 +95,7 @@ async function logoutUser() {
 async function getCurrentUser() {
   try {
     const res = await fetch('/api/me');
-    if (!res.ok) return None;
+    if (!res.ok) return null;
     const data = await res.json();
     return data.user;
   } catch (err) {
