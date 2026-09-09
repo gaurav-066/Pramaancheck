@@ -9,11 +9,16 @@ def load_config():
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
+import os
+
 def get_db_path() -> Path:
+    if os.environ.get("VERCEL"):
+        return Path("/tmp/pramaancheck.db")
     config = load_config()
     relative_path = config.get("db_path", "../pramaancheck.db")
     # Resolve relative to backend directory
     return (Path(__file__).parent / relative_path).resolve()
+
 
 def init_db():
     """

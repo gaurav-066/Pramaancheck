@@ -36,12 +36,18 @@ def load_config():
 
 config = load_config()
 
-UPLOAD_DIR = (BASE_DIR / config.get("upload_dir", "../uploads")).resolve()
-REPORT_DIR = (BASE_DIR / config.get("report_dir", "../reports")).resolve()
+if os.environ.get("VERCEL"):
+    UPLOAD_DIR = Path("/tmp/uploads")
+    REPORT_DIR = Path("/tmp/reports")
+else:
+    UPLOAD_DIR = (BASE_DIR / config.get("upload_dir", "../uploads")).resolve()
+    REPORT_DIR = (BASE_DIR / config.get("report_dir", "../reports")).resolve()
+
 FRONTEND_DIR = (BASE_DIR / "../frontend").resolve()
 
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 REPORT_DIR.mkdir(parents=True, exist_ok=True)
+
 
 app = FastAPI(title="PramaanCheck API", version="1.0.0")
 
