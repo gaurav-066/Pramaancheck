@@ -6,8 +6,8 @@ venv/
 .venv/
 env/
 
-# Sensitive
-backend/config.json
+# Sensitive — add backend/config.json back to .gitignore if it contains real secrets
+# backend/config.json
 
 # Uploads & generated files
 uploads/
