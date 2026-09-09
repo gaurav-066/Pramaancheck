@@ -49,12 +49,18 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 REPORT_DIR.mkdir(parents=True, exist_ok=True)
 
 
+from fastapi.middleware.gzip import GZipMiddleware
+
 app = FastAPI(title="PramaanCheck API", version="1.0.0")
+
+# Enable HTTP GZip compression for instant asset delivery & fast JSON payloads
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 # Initialize SQLite Database on startup
 @app.on_event("startup")
 def startup_event():
     db.init_db()
+
 
 # Session auth dependency
 def get_current_user(request: Request):
