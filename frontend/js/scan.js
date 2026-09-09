@@ -6,27 +6,18 @@ let canvasPoints = []; // Clicked canvas points [{x, y}]
 let scaleFactor = 1.0;
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Check auth session safely
-  let currentUser = null;
-  try {
-    currentUser = await getCurrentUser();
-  } catch (e) {
-    console.warn("Auth session check:", e);
-  }
-
+  // Check auth session
+  const currentUser = await getCurrentUser();
   if (!currentUser) {
-    currentUser = { name: 'Inspector', username: 'inspector', role: 'inspector' };
+    window.location.href = '/login';
+    return;
   }
 
-  // Populate user badge in navbar if elements exist
-  const userNameElem = document.getElementById('user-name');
-  if (userNameElem) userNameElem.textContent = currentUser.name || currentUser.username;
-
+  // Populate user badge in navbar
+  document.getElementById('user-name').textContent = currentUser.name || currentUser.username;
   const roleElem = document.getElementById('user-role');
-  if (roleElem) {
-    roleElem.textContent = currentUser.role;
-    roleElem.className = `user-role-tag role-${currentUser.role}`;
-  }
+  roleElem.textContent = currentUser.role;
+  roleElem.className = `user-role-tag role-${currentUser.role}`;
 
   // Setup drag & drop handlers
   const dropZone = document.getElementById('drop-zone');
@@ -183,20 +174,14 @@ async function runLabelScan() {
       body: formData
     });
 
-    const contentType = response.headers.get('content-type') || '';
-    const isJson = contentType.includes('application/json');
-    const data = isJson ? await response.json() : null;
-
+    const data = await response.json();
     if (!response.ok) {
-      const errorDetail = (data && data.detail) ? data.detail : `Server error (${response.status})`;
-      throw new Error(errorDetail);
+      throw new Error(data.detail || 'Scan processing failed');
     }
 
-    if (data) {
-      renderScanResults(data);
-    }
+    renderScanResults(data);
   } catch (err) {
-    scanAlert.textContent = err.message || 'Scan evaluation failed';
+    scanAlert.textContent = err.message;
     scanAlert.style.display = 'block';
     document.getElementById('results-placeholder').style.display = 'block';
   } finally {
@@ -274,9 +259,26 @@ function renderScanResults(data) {
     rulesList.appendChild(ruleDiv);
   });
 
-  // PDF Report Download Button (if scan_id present)
+  // PDF Report Download Button
   const downloadBtn = document.getElementById('download-report-btn');
-  if (data.scan_id) {
+  if (data.pdf_base64) {
+    // Build a client-side blob from the base64 PDF — no extra API call needed
+    try {
+      const pdfBytes = Uint8Array.from(atob(data.pdf_base64), c => c.charCodeAt(0));
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const blobUrl = URL.createObjectURL(blob);
+      downloadBtn.href = blobUrl;
+      downloadBtn.download = `pramaancheck_scan_${data.scan_id || 'report'}.pdf`;
+      downloadBtn.style.display = 'flex';
+    } catch (e) {
+      console.error('PDF blob error:', e);
+      if (data.scan_id) {
+        downloadBtn.href = `/api/reports/download/${data.scan_id}`;
+        downloadBtn.style.display = 'flex';
+      }
+    }
+  } else if (data.scan_id) {
+    // Fallback to API download if base64 not available
     downloadBtn.href = `/api/reports/download/${data.scan_id}`;
     downloadBtn.style.display = 'flex';
   }
@@ -341,15 +343,4 @@ function takeCameraSnapshot() {
     }
   }, 'image/jpeg', 0.95);
 }
-
-// --- Explicit Window Scope Exports for HTML Event Handlers ---
-window.startCameraFeed = startCameraFeed;
-window.stopCameraFeed = stopCameraFeed;
-window.takeCameraSnapshot = takeCameraSnapshot;
-window.handleFileSelect = handleFileSelect;
-window.handleFile = handleFile;
-window.resetCanvasCorners = resetCanvasCorners;
-window.runLabelScan = runLabelScan;
-
-
 
