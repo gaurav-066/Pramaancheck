@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inspect Label — PramaanCheck Legal Metrology</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Retro Dot-Matrix Display Font -->
+  <link
+    href="https://db.onlinewebfonts.com/c/8cb707a9b8a73f8a7403336b861c3074?family=BubbledotICG-FinePos"
+    rel="stylesheet"
+  />
+
+  <!-- Font Awesome 6.5.2 Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body>
+  <!-- Full-viewport Cover Video Background -->
+  <div class="bg">
+    <video class="bg-video" autoplay muted loop playsinline>
+      <source
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4"
+        type="video/mp4"
+      />
+    </video>
+  </div>
+
+  <main class="page">
+    <!-- Header -->
+    <header class="header">
+      <a href="/" class="logo-btn" aria-label="Home Logo">
+        <img
+          src="assets/logo.webp"
+          alt="PramaanCheck Emblem Logo"
+          width="52"
+          height="52"
+          class="logo-img"
+        />
+      </a>
+
+      <nav class="nav-pill" aria-label="Main Navigation">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/scan" class="nav-link active">Inspect Label</a>
+        <a href="/dashboard" class="nav-link">Enforcement Gazette</a>
+        <a href="#rules-modal" class="nav-link" id="rulesNavBtn">Rule Book</a>
+      </nav>
+
+
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div class="user-badge" id="user-badge-container" style="display: flex; align-items: center; gap: 8px; background: var(--pill-dark); padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.15);">
+          <span id="user-name" style="font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: #ffffff;">Inspector</span>
+          <span id="user-role" class="user-role-tag role-inspector">inspector</span>
+        </div>
+        <button onclick="logoutUser()" class="sign-in-btn" style="background: rgba(153, 27, 27, 0.4); color: #ffffff; border: 1px solid #991b1b; padding: 0 16px; cursor: pointer;">Logout</button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="main-workspace anim">
+      <div style="text-align: center; margin-bottom: 4px;">
+        <h1 style="font-family: var(--font-display); font-size: clamp(24px, 4vw, 36px); color: #ffffff; letter-spacing: -0.03em;">COMMODITY LABEL INSPECTION</h1>
+        <p style="font-family: var(--font-sans); font-size: 13px; color: var(--trust-text); margin-top: 4px;">
+          Upload packaging label photo, calibrate reference ID card scale, and verify Rule 6 &amp; 7 statutory compliance.
+        </p>
+      </div>
+
+      <div id="scan-alert" class="alert-box alert-error" style="display: none;"></div>
+
+      <div class="scan-grid">
+        <!-- Left Column: Upload & Canvas Calibration -->
+        <div class="glass-panel">
+          <h2 style="font-family: var(--font-sans); font-size: 15px; font-weight: 600; text-transform: uppercase; color: #ffffff; margin-bottom: 14px; letter-spacing: 0.04em;">
+            1. UPLOAD PACKAGING LABEL
+          </h2>
+
+          <div class="upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
+            <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)" />
+            <div style="font-size: 38px; margin-bottom: 8px;">📷</div>
+            <div style="font-weight: 600; font-family: var(--font-sans); color: #ffffff; text-transform: uppercase; font-size: 13px; letter-spacing: 0.04em;">
+              Click or Drag Label Image Here
+            </div>
+            <div style="font-size: 11px; color: var(--muted); margin-top: 4px; font-family: var(--font-sans);">
+              Supports PNG, JPG, JPEG up to 10 MB
+            </div>
+          </div>
+
+          <!-- Canvas Section -->
+          <div id="calibration-section" style="display: none; margin-top: 18px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+              <span style="font-weight: 600; font-size: 11px; font-family: var(--font-sans); text-transform: uppercase; color: var(--trust-text);">
+                2. Calibrate ID Card Scale (Optional)
+              </span>
+              <button type="button" onclick="resetCanvasCorners()" style="font-size: 11px; font-family: var(--font-sans); color: #fca5a5; background: none; border: none; font-weight: 600; cursor: pointer;">
+                [ RESET CORNERS ]
+              </button>
+            </div>
+            <div style="font-size: 12px; color: var(--muted); margin-bottom: 10px;">
+              Click 4 corners of an ID card in photo (Top-Left, Top-Right, Bottom-Right, Bottom-Left) for mm scale.
+            </div>
+
+            <div class="canvas-container">
+              <canvas id="label-canvas"></canvas>
+              <div class="canvas-toolbar">
+                <span id="canvas-status">STATUS: DEFAULT SCALE (HEURISTIC)</span>
+                <span id="points-count">0 / 4 POINTS MARKED</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" id="start-scan-btn" class="auth-submit-btn" style="margin-top: 18px;" onclick="runLabelScan()" disabled>
+            ANALYZE PRODUCT COMPLIANCE
+          </button>
+        </div>
+
+        <!-- Right Column: Compliance Report & Inspection Results -->
+        <div class="glass-panel" id="results-panel">
+          <h2 style="font-family: var(--font-sans); font-size: 15px; font-weight: 600; text-transform: uppercase; color: #ffffff; margin-bottom: 14px; letter-spacing: 0.04em;">
+            STATUTORY INSPECTION REPORT
+          </h2>
+
+          <div id="results-placeholder" style="padding: 50px 16px; text-align: center; color: var(--muted);">
+            <div style="font-size: 40px; margin-bottom: 10px;">⚖️</div>
+            <div style="font-weight: 600; font-family: var(--font-sans); text-transform: uppercase; font-size: 13px; color: #ffffff;">
+              NO AUDIT RESULTS YET
+            </div>
+            <div style="font-size: 12px; margin-top: 6px; color: var(--trust-text);">
+              Upload a product label photo on the left to view Rule 6 &amp; 7 compliance checks.
+            </div>
+          </div>
+
+          <div id="loading-spinner" style="display: none; padding: 50px 16px; text-align: center;">
+            <div style="font-size: 36px; animation: spin 1s linear infinite; display: inline-block;">⚙️</div>
+            <div style="font-weight: 600; font-family: var(--font-sans); text-transform: uppercase; margin-top: 12px; font-size: 13px; color: #ffffff;">
+              Running Gemini Vision Inspection...
+            </div>
+            <div style="font-size: 12px; color: var(--trust-text); margin-top: 4px;">
+              Extracting statutory declarations &amp; measuring Rule 7 font heights.
+            </div>
+          </div>
+
+          <div id="results-content" style="display: none;">
+            <!-- Score Banner -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; margin-bottom: 16px;">
+              <div>
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 600;">Overall Status</div>
+                <div id="res-status-badge" style="margin-top: 6px;"></div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 600;">Compliance Rating</div>
+                <div id="res-score-val" style="font-family: var(--font-sans); font-size: 28px; font-weight: 700; color: #ffffff;">0%</div>
+              </div>
+            </div>
+
+            <!-- OCR Engine Info Tag -->
+            <div style="background: rgba(255,255,255,0.04); padding: 10px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 16px; font-size: 12px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="color: var(--muted); font-weight: 600;">OCR ENGINE:</span>
+              <span id="res-ocr-engine" style="font-weight: 700; color: #ffffff;">Gemini Vision</span>
+            </div>
+
+            <!-- Font Check Section -->
+            <div style="background: rgba(255,255,255,0.04); padding: 14px 16px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 20px; font-size: 13px;">
+              <div style="font-weight: 600; font-family: var(--font-sans); text-transform: uppercase; margin-bottom: 4px; color: #ffffff;">
+                Rule 7 Font Size Verification
+              </div>
+              <div id="res-font-details" style="color: var(--trust-text); font-family: var(--font-sans);"></div>
+            </div>
+
+            <!-- Rule 6 Results Checklist -->
+            <h3 style="font-size: 14px; font-family: var(--font-sans); font-weight: 600; text-transform: uppercase; margin-bottom: 12px; color: #ffffff;">
+              Rule 6 Mandatory Declarations
+            </h3>
+            <div id="rules-list"></div>
+
+            <!-- Action Toolbar -->
+            <div style="margin-top: 20px;">
+              <a id="download-report-btn" href="#" target="_blank" class="auth-submit-btn" style="text-decoration: none; display: none; align-items: center; justify-content: center; gap: 8px;">
+                📄 DOWNLOAD OFFICIAL GAZETTE PDF REPORT
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Rule Book Modal -->
+  <div class="modal-overlay" id="rulesModal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title"><i class="fa-solid fa-book-bookmark"></i> Statutory Rule Book</h2>
+        <button class="modal-close" id="closeRulesBtn" aria-label="Close Rules Modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h3 class="rule-heading">Legal Metrology (Packaged Commodities) Rules, 2011</h3>
+        
+        <div class="rule-card">
+          <h4>Rule 6 — Mandatory Declarations on Package</h4>
+          <p>Every package must bear legible, prominent declarations including: Manufacturer Name &amp; Address, Country of Origin, Common/Generic Name, Net Quantity, Month &amp; Year of Manufacture, Maximum Retail Price (MRP incl. of all taxes), Consumer Care Details, and Net Quantity Declaration.</p>
+        </div>
+
+        <div class="rule-card">
+          <h4>Rule 7 — Height &amp; Width Ratio of Numerals &amp; Letters</h4>
+          <p>Minimum height of numerals and letters depending on net quantity (e.g., &le;50g/ml: 1mm, &gt;50g/ml to 200g/ml: 2mm, &gt;200g/ml to 1kg/l: 4mm, &gt;1kg/l: 6mm). Width ratio to height must not be less than 1:3.</p>
+        </div>
+
+        <div class="rule-card">
+          <h4>Rule 18 — Provisions Relating to Wholesale / Retail Sale</h4>
+          <p>No package shall be sold at a price higher than the Maximum Retail Price (MRP) declared on the package.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="/static/js/auth.js"></script>
+  <script src="/static/js/scan.js"></script>
+  <script src="/main.js"></script>
+</body>
+</html>
+
+

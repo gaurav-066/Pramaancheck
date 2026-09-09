@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Officer Portal Login — PramaanCheck Legal Metrology</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Retro Dot-Matrix Display Font -->
+  <link
+    href="https://db.onlinewebfonts.com/c/8cb707a9b8a73f8a7403336b861c3074?family=BubbledotICG-FinePos"
+    rel="stylesheet"
+  />
+
+  <!-- Font Awesome 6.5.2 Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Full-viewport Cover Video Background -->
+  <div class="bg">
+    <video class="bg-video" autoplay muted loop playsinline>
+      <source
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4"
+        type="video/mp4"
+      />
+    </video>
+  </div>
+
+  <main class="page">
+    <!-- Header -->
+    <header class="header">
+      <a href="/" class="logo-btn" aria-label="Home Logo">
+        <img
+          src="assets/logo.webp"
+          alt="PramaanCheck Emblem Logo"
+          width="52"
+          height="52"
+          class="logo-img"
+        />
+      </a>
+
+      <nav class="nav-pill" aria-label="Main Navigation">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/scan" class="nav-link">Inspect Label</a>
+        <a href="/dashboard" class="nav-link">Enforcement Gazette</a>
+        <a href="#rules-modal" class="nav-link" id="rulesNavBtn">Rule Book</a>
+      </nav>
+
+
+      <a href="/login" class="sign-in-btn" style="background: #ffffff; color: #000000; font-weight: 600;">Officer Portal</a>
+    </header>
+
+    <!-- Glassmorphic Auth Workspace -->
+    <div class="auth-container anim">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div style="margin: 0 auto 10px; width: 48px; height: 48px; border-radius: 50%; background: #ffffff; display: grid; place-items: center;">
+            <img src="assets/logo.webp" alt="Emblem" style="width: 72%; height: 72%; object-fit: contain;" />
+          </div>
+          <h1>PRAMAANCHECK</h1>
+          <p>Legal Metrology Enforcement Officer Portal</p>
+        </div>
+
+        <div id="error-alert" class="alert-box alert-error" style="display: none;"></div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label for="username">Officer / User ID</label>
+            <input
+              type="text"
+              id="username"
+              class="form-control"
+              placeholder="Enter username (e.g. inspector)"
+              required
+            />
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label for="password">Security Passcode</label>
+            <input
+              type="password"
+              id="password"
+              class="form-control"
+              placeholder="Enter security passcode"
+              required
+            />
+          </div>
+
+          <button type="submit" class="auth-submit-btn">
+            SIGN IN TO PORTAL
+          </button>
+        </form>
+
+        <div class="quick-users">
+          <div class="quick-users-title">— QUICK DEMO OFFICER ACCESS —</div>
+
+          <button class="quick-user-btn" onclick="quickLogin('admin', 'admin123')">
+            <span><strong>Admin Authority</strong> (Full Enforcement)</span>
+            <span class="user-role-tag role-admin">admin</span>
+          </button>
+
+          <button class="quick-user-btn" onclick="quickLogin('inspector', 'inspect123')">
+            <span><strong>Inspector Sharma</strong> (Field Officer)</span>
+            <span class="user-role-tag role-inspector">inspector</span>
+          </button>
+
+          <button class="quick-user-btn" onclick="quickLogin('viewer', 'view123')">
+            <span><strong>Viewer Patel</strong> (Public Audit)</span>
+            <span class="user-role-tag role-viewer">viewer</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- JavaScript -->
+  <script src="/static/js/auth.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
