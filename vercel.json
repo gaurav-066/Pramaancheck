@@ -56,6 +56,18 @@
       "dest": "/main.js"
     },
     {
+      "src": "/frontend/js/(.*)",
+      "dest": "/frontend/js/$1"
+    },
+    {
+      "src": "/static/js/(.*)",
+      "dest": "/frontend/js/$1"
+    },
+    {
+      "src": "/js/(.*)",
+      "dest": "/frontend/js/$1"
+    },
+    {
       "src": "/assets/(.*)",
       "dest": "/assets/$1"
     },

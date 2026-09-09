@@ -219,6 +219,11 @@ async def download_report(scan_id: int, current_user: dict = Depends(get_current
 if FRONTEND_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
 
+    js_dir = FRONTEND_DIR / "js"
+    if js_dir.exists():
+        app.mount("/frontend/js", StaticFiles(directory=str(js_dir)), name="frontend_js")
+        app.mount("/js", StaticFiles(directory=str(js_dir)), name="js")
+
     assets_dir = FRONTEND_DIR / "assets"
     if assets_dir.exists():
         app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")

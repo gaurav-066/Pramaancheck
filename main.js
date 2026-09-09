@@ -146,5 +146,47 @@ document.addEventListener("DOMContentLoaded", () => {
       closeRulesModal();
     }
   });
+
+  // --- 4. Instant Hover Preloader ---
+  const preloadedPages = new Set();
+
+  const preloadPageUrl = (url) => {
+    if (!url || preloadedPages.has(url) || url.startsWith("#") || url.startsWith("javascript:")) return;
+    preloadedPages.add(url);
+
+    try {
+      const link = document.createElement("link");
+      link.rel = "prefetch";
+      link.href = url;
+      link.as = "document";
+      document.head.appendChild(link);
+    } catch (err) {
+      fetch(url, { priority: "low" }).catch(() => {});
+    }
+  };
+
+  // Preload on mouse hover or touch start
+  document.body.addEventListener(
+    "pointerover",
+    (e) => {
+      const anchor = e.target.closest("a");
+      if (anchor && anchor.href && anchor.origin === window.location.origin) {
+        preloadPageUrl(anchor.href);
+      }
+    },
+    { passive: true }
+  );
+
+  document.body.addEventListener(
+    "touchstart",
+    (e) => {
+      const anchor = e.target.closest("a");
+      if (anchor && anchor.href && anchor.origin === window.location.origin) {
+        preloadPageUrl(anchor.href);
+      }
+    },
+    { passive: true }
+  );
 });
+
 

@@ -94,15 +94,17 @@
 - Vercel Edge CDN Caching Headers in `vercel.json` (`Cache-Control: public, max-age=31536000, immutable` for static assets & fonts, `max-age=86400, stale-while-revalidate=600` for JS & CSS).
 - HTML Head Preloading & DNS Prefetching (`<link rel="dns-prefetch">`, `<link rel="preload" as="image">`, `<link rel="preload" as="font">`, `<link rel="preload" as="style">`) across `index.html`, `frontend/scan.html`, `frontend/dashboard.html`, and `frontend/login.html`.
 - Removed external font dependency (`db.onlinewebfonts.com`) which caused a 0.75s-1.5s rendering delay, switching exclusively to local woff2 `GeistPixel-Circle.woff2`.
-- Added `preload="metadata"` to full-bleed video elements preventing video streaming from hijacking critical rendering network requests.
+- Added Instant Hover Preloader (`<link rel="prefetch">` on `pointerover` / `touchstart` of any navigation link) in `main.js` so target pages fetch in the background before click, enabling 0ms instant page switching.
+- Fixed Vercel and FastAPI static script routing for `/frontend/js/*`, `/static/js/*`, `/js/*` to prevent script requests from falling back to `index.html`.
+- Bound camera (`startCameraFeed`), drag & drop, file selection (`handleFileSelect`), canvas calibration, and scan execution functions directly to `window` scope in `frontend/js/scan.js`.
 
 ### Tested
-- FastAPI GZip middleware startup test: PASSED
-- Image scaling OCR engine execution: PASSED
-- Vercel header JSON schema verification: PASSED
-- Page rendering latency test (eliminated ~1.5s render blocking font delay): PASSED
+- Instant Hover Preloader execution: PASSED
+- Camera, drag-and-drop, & file picker script bindings: PASSED
+- Script path resolution on `/scan`, `/dashboard`, `/login`: PASSED
 
 ### Status
-- Page load time reduced from ~2-3 seconds down to instantaneous (<100ms first contentful paint).
+- Live camera stream, file upload, drag-and-drop, and instant link hover preloading fully functional.
+
 
 

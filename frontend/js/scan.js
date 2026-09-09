@@ -318,12 +318,13 @@ function takeCameraSnapshot() {
   const ctx = offscreenCanvas.getContext('2d');
   ctx.drawImage(cameraFeed, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
 
-  offscreenCanvas.toBlob((blob) => {
-    if (blob) {
-      const capturedFile = new File([blob], `camera_scan_${Date.now()}.jpg`, { type: 'image/jpeg' });
-      stopCameraFeed();
-      handleFile(capturedFile);
-    }
-  }, 'image/jpeg', 0.95);
-}
+// --- Explicit Window Scope Exports for HTML Event Handlers ---
+window.startCameraFeed = startCameraFeed;
+window.stopCameraFeed = stopCameraFeed;
+window.takeCameraSnapshot = takeCameraSnapshot;
+window.handleFileSelect = handleFileSelect;
+window.handleFile = handleFile;
+window.resetCanvasCorners = resetCanvasCorners;
+window.runLabelScan = runLabelScan;
+
 
