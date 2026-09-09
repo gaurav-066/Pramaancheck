@@ -2,120 +2,21 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/main.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "frontend/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "styles.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "main.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "assets/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "fonts/**",
-      "use": "@vercel/static"
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": { "maxLambdaSize": "50mb" }
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/main.py"
-    },
-    {
-      "src": "/scan",
-      "dest": "/frontend/scan.html"
-    },
-    {
-      "src": "/dashboard",
-      "dest": "/frontend/dashboard.html"
-    },
-    {
-      "src": "/login",
-      "dest": "/frontend/login.html"
-    },
-    {
-      "src": "/styles.css",
-      "dest": "/styles.css"
-    },
-    {
-      "src": "/main.js",
-      "dest": "/main.js"
-    },
-    {
-      "src": "/frontend/js/(.*)",
-      "dest": "/frontend/js/$1"
-    },
-    {
-      "src": "/static/js/(.*)",
-      "dest": "/frontend/js/$1"
-    },
-    {
-      "src": "/js/(.*)",
-      "dest": "/frontend/js/$1"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/fonts/(.*)",
-      "dest": "/fonts/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/fonts/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/styles.css",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400, stale-while-revalidate=600"
-        }
-      ]
-    },
-    {
-      "source": "/main.js",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400, stale-while-revalidate=600"
-        }
-      ]
-    }
+    { "src": "/api/(.*)", "dest": "/api/index.py" },
+    { "src": "/js/(.*)",  "dest": "/frontend/js/$1" },
+    { "src": "/fonts/(.*)", "dest": "/frontend/fonts/$1" },
+    { "src": "/assets/(.*)", "dest": "/frontend/assets/$1" },
+    { "src": "/styles\\.css", "dest": "/frontend/styles.css" },
+    { "src": "/main\\.js",  "dest": "/frontend/main.js" },
+    { "src": "/scan",      "dest": "/frontend/scan.html" },
+    { "src": "/login",     "dest": "/frontend/login.html" },
+    { "src": "/dashboard", "dest": "/frontend/dashboard.html" },
+    { "src": "/",          "dest": "/frontend/index.html" }
   ]
 }
