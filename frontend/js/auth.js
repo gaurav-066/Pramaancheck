@@ -69,8 +69,8 @@ async function performLogin(username, password) {
     // Save user role in localStorage for quick UI render
     localStorage.setItem('user', JSON.stringify(data.user));
 
-    // Redirect to dashboard
-    window.location.href = '/';
+    // Redirect to scan page after login
+    window.location.href = '/scan';
   } catch (err) {
     if (errorAlert) {
       errorAlert.textContent = err.message;
