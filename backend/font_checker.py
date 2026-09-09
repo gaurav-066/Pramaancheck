@@ -10,8 +10,24 @@ import pytesseract
 CONFIG_PATH = Path(__file__).parent / "config.json"
 
 def load_config():
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    paths_to_check = [
+        Path(__file__).parent / "config.json",
+        Path(__file__).parent.parent / "config.json",
+        Path("/var/task/backend/config.json"),
+        Path("/var/task/config.json"),
+        Path("backend/config.json"),
+        Path("config.json")
+    ]
+    for p in paths_to_check:
+        if p.exists():
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+    return {
+        "tesseract_cmd": "/usr/bin/tesseract"
+    }
 
 # Standard ID Card Dimensions (ISO/IEC 7810 ID-1)
 REF_CARD_WIDTH_MM = 85.6

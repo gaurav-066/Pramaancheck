@@ -31,8 +31,27 @@ BASE_DIR = Path(__file__).parent
 CONFIG_PATH = BASE_DIR / "config.json"
 
 def load_config():
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    paths_to_check = [
+        BASE_DIR / "config.json",
+        BASE_DIR.parent / "config.json",
+        Path("/var/task/backend/config.json"),
+        Path("/var/task/config.json"),
+        Path("backend/config.json"),
+        Path("config.json")
+    ]
+    for p in paths_to_check:
+        if p.exists():
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+    return {
+        "session_secret": "pramaancheck-secret-key-change-in-production",
+        "session_max_age_hours": 24,
+        "max_upload_size_mb": 10,
+        "gemini_model": "gemini-3.5-flash-lite"
+    }
 
 config = load_config()
 
@@ -64,13 +83,15 @@ def startup_event():
 
 # Session auth dependency
 def get_current_user(request: Request):
-    token = request.cookies.get("session_token") or request.headers.get("Authorization", "").replace("Bearer ", "")
-    if not token:
-        return {"username": "inspector", "role": "inspector", "name": "Field Inspector"}
-    payload = verify_session_token(token)
-    if not payload:
-        return {"username": "inspector", "role": "inspector", "name": "Field Inspector"}
-    return payload
+    try:
+        token = request.cookies.get("session_token") or request.headers.get("Authorization", "").replace("Bearer ", "")
+        if token:
+            payload = verify_session_token(token)
+            if payload:
+                return payload
+    except Exception as err:
+        print(f"[Auth Dependency Error]: {err}")
+    return {"username": "inspector", "role": "inspector", "name": "Field Inspector"}
 
 # ------------------------------------------------------------------------------
 # Authentication Routes

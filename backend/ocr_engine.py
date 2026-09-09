@@ -11,8 +11,25 @@ from google.genai import types
 CONFIG_PATH = Path(__file__).parent / "config.json"
 
 def load_config():
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    paths_to_check = [
+        Path(__file__).parent / "config.json",
+        Path(__file__).parent.parent / "config.json",
+        Path("/var/task/backend/config.json"),
+        Path("/var/task/config.json"),
+        Path("backend/config.json"),
+        Path("config.json")
+    ]
+    for p in paths_to_check:
+        if p.exists():
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+    return {
+        "gemini_model": "gemini-3.5-flash-lite",
+        "tesseract_cmd": "/usr/bin/tesseract"
+    }
 
 PROMPT_LABEL_ANALYSIS = """
 You are an expert Legal Metrology (Packaged Commodities) Inspector in India.
