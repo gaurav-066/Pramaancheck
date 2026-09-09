@@ -266,3 +266,64 @@ function renderScanResults(data) {
     downloadBtn.style.display = 'flex';
   }
 }
+
+// --- Live Camera Stream Controller ---
+let activeMediaStream = null;
+
+async function startCameraFeed() {
+  const cameraSection = document.getElementById('camera-section');
+  const cameraFeed = document.getElementById('camera-feed');
+  const alertBox = document.getElementById('scan-alert');
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    if (alertBox) {
+      alertBox.textContent = "Camera access is not supported by your browser or environment.";
+      alertBox.style.display = "block";
+    }
+    return;
+  }
+
+  try {
+    activeMediaStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" }
+    });
+    cameraFeed.srcObject = activeMediaStream;
+    cameraSection.style.display = 'block';
+    if (alertBox) alertBox.style.display = 'none';
+  } catch (err) {
+    console.error("Camera access error:", err);
+    if (alertBox) {
+      alertBox.textContent = `Unable to access camera: ${err.message || err}`;
+      alertBox.style.display = 'block';
+    }
+  }
+}
+
+function stopCameraFeed() {
+  if (activeMediaStream) {
+    activeMediaStream.getTracks().forEach(track => track.stop());
+    activeMediaStream = null;
+  }
+  const cameraSection = document.getElementById('camera-section');
+  if (cameraSection) cameraSection.style.display = 'none';
+}
+
+function takeCameraSnapshot() {
+  const cameraFeed = document.getElementById('camera-feed');
+  if (!cameraFeed || !cameraFeed.videoWidth) return;
+
+  const offscreenCanvas = document.createElement('canvas');
+  offscreenCanvas.width = cameraFeed.videoWidth;
+  offscreenCanvas.height = cameraFeed.videoHeight;
+  const ctx = offscreenCanvas.getContext('2d');
+  ctx.drawImage(cameraFeed, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
+
+  offscreenCanvas.toBlob((blob) => {
+    if (blob) {
+      const capturedFile = new File([blob], `camera_scan_${Date.now()}.jpg`, { type: 'image/jpeg' });
+      stopCameraFeed();
+      handleFile(capturedFile);
+    }
+  }, 'image/jpeg', 0.95);
+}
+

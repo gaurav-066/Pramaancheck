@@ -91,6 +91,25 @@
             1. UPLOAD PACKAGING LABEL
           </h2>
 
+          <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+            <button type="button" onclick="startCameraFeed()" class="quick-user-btn" style="justify-content: center; gap: 8px; font-weight: 600;">
+              📹 Open Live Camera
+            </button>
+          </div>
+
+          <!-- Camera Stream Section -->
+          <div id="camera-section" style="display: none; margin-bottom: 16px;">
+            <video id="camera-feed" autoplay playsinline style="width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: #000000; display: block;"></video>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+              <button type="button" onclick="takeCameraSnapshot()" class="auth-submit-btn" style="flex: 1; margin-top: 0;">
+                📸 Capture Snapshot
+              </button>
+              <button type="button" onclick="stopCameraFeed()" class="quick-user-btn" style="width: auto; padding: 0 16px; background: rgba(153, 27, 27, 0.4); border-color: #991b1b;">
+                ❌ Close
+              </button>
+            </div>
+          </div>
+
           <div class="upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
             <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelect(event)" />
             <div style="font-size: 38px; margin-bottom: 8px;">📷</div>
@@ -101,6 +120,7 @@
               Supports PNG, JPG, JPEG up to 10 MB
             </div>
           </div>
+
 
           <!-- Canvas Section -->
           <div id="calibration-section" style="display: none; margin-top: 18px;">
