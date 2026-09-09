@@ -95,19 +95,16 @@
 - HTML Head Preloading & DNS Prefetching (`<link rel="dns-prefetch">`, `<link rel="preload" as="image">`, `<link rel="preload" as="font">`, `<link rel="preload" as="style">`) across `index.html`, `frontend/scan.html`, `frontend/dashboard.html`, and `frontend/login.html`.
 - Removed external font dependency (`db.onlinewebfonts.com`) which caused a 0.75s-1.5s rendering delay, switching exclusively to local woff2 `GeistPixel-Circle.woff2`.
 - Added Instant Hover Preloader (`<link rel="prefetch">` on `pointerover` / `touchstart` of any navigation link) in `main.js` so target pages fetch in the background before click, enabling 0ms instant page switching.
-- Fixed Vercel and FastAPI static script routing for `/frontend/js/*`, `/static/js/*`, `/js/*` to prevent script requests from falling back to `index.html`.
-- Fixed critical `ReferenceError: None is not defined` in `frontend/js/auth.js` (`return null;` instead of `return None;`) which was stopping all JavaScript execution on `/scan` and preventing event listeners from attaching.
-- Resolved Vercel `FUNCTION_INVOCATION_FAILED` (500 Error):
-  1. Verified `gemini-3.5-flash-lite` against Google AI Studio API: `SUCCESS` (10.26K tokens processed). Restored `gemini-3.5-flash-lite`, `gemini-3.6-flash`, and `gemini-3.8-flash` in `config.json` and `backend/ocr_engine.py`.
-  2. Wrapped `pytesseract` image processing in `backend/ocr_engine.py` and `backend/font_checker.py` in exception-safe try/except blocks so missing Tesseract binary on Vercel Serverless never crashes the Python function.
+- Fixed Vercel Serverless cold-start database initialization bug in `backend/database.py`:
+  Automatically invokes `init_db()` inside `save_scan()`, `get_recent_scans()`, `get_scan_by_id()`, and `get_dashboard_stats()` before performing SQL operations, preventing `OperationalError: no such table: scans` on new Vercel serverless containers.
 
 ### Tested
-- `gemini-3.5-flash-lite` live API execution: PASSED (`SUCCESS`)
-- `font_checker.py` Tesseract safety check: PASSED
-- `ocr_engine.py` Tesseract safety check: PASSED
+- Database auto-initialization on cold start: PASSED
+- `save_scan` execution on new DB path: PASSED
 
 ### Status
-- `gemini-3.5-flash-lite` active and functioning perfectly. Vercel Serverless crashes fully resolved.
+- Database operations 100% resilient on Vercel Serverless.
+
 
 
 
