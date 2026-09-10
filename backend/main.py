@@ -56,7 +56,18 @@ FRONTEND_DIR = (BASE_DIR / "../frontend").resolve()
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 REPORT_DIR.mkdir(parents=True, exist_ok=True)
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(title="PramaanCheck API", version="1.0.0")
+
+# Enable CORS for mobile devices & tunnel access
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Initialize SQLite Database on startup
 @app.on_event("startup")
