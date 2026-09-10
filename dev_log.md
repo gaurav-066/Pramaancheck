@@ -100,8 +100,29 @@
 ### Tested
 - Summary artifact update: PASSED
 
+## Session: 2026-09-10 (Risk Watchlist Engine & Card Auto-Detection with False-Positive Prevention)
+
+### Built
+- Risk-Based Inspection Prioritization Engine in `backend/database.py` (`get_risk_watchlist`) and `backend/main.py` (`/api/dashboard/watchlist`) to group scans by manufacturer and rank non-compliant offenders into CRITICAL, HIGH RISK, ELEVATED, and LOW risk tiers.
+- High-Risk Enforcement Watchlist UI in `frontend/dashboard.html` & `frontend/js/dashboard.js` with glassmorphic risk pills and critical alert badges.
+- Standard ISO 7810 ID-1 (85.6mm x 53.98mm) auto-card reference calibration engine in `backend/font_checker.py`.
+- HSV Orange-Strip Card Detection Strategy 1 with 4-stage false-positive protection (Size filter, Solidity convexity check > 0.82, Elongated aspect ratio > 2.0, and Card width sanity check 10%-85% of image width) to prevent orange product packaging from triggering false calibration.
+- CLAHE-enhanced multi-parameter contour detection Strategy 2 with adaptive blur/Canny edge parameters (blur 3-9, lo 15-50, hi 60-150, eps 0.02-0.06, ratio 1.1-2.1) to handle blurry/dark/angled photos taken by officers.
+
+### Tested
+- Database Risk Watchlist API query: PASSED
+- Glassmorphic UI watchlist rendering: PASSED
+- False-positive orange product packaging filter test (`cv2.rectangle` aspect ratio test): PASSED (Square orange packaging ignored, passed to Strategy 2 / heuristic)
+- ID Card narrow orange strip detection test (`px/mm=3.50`): PASSED
+- Synthetic rectangle contour calibration test (7.4% error margin): PASSED
+
 ### Status
-- Project summary fully up to date and synchronized.
+- Risk Watchlist Engine committed and pushed (`2b4618b`).
+- Card Auto-Detection Engine enhanced with false-positive protection ready for check-in.
+
+### Next Steps
+- Validate user's decision before moving to the next component (per Rule 1).
+
 
 
 
