@@ -208,6 +208,10 @@ async def process_scan(
 async def dashboard_stats(current_user: dict = Depends(get_current_user)):
     return db.get_dashboard_stats()
 
+@app.get("/api/dashboard/watchlist")
+async def dashboard_watchlist(current_user: dict = Depends(get_current_user)):
+    return db.get_risk_watchlist(limit=5)
+
 @app.get("/api/scans/recent")
 async def recent_scans(current_user: dict = Depends(get_current_user)):
     return db.get_recent_scans(limit=10)
