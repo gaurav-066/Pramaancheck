@@ -229,7 +229,34 @@ function renderScanResults(data) {
 
   // Render Font Check Details
   const fontCheck = data.font_check || {};
-  document.getElementById('res-font-details').textContent = fontCheck.rule_7_details || 'Font height verified.';
+  const fontElem = document.getElementById('res-font-details');
+  if (fontElem) {
+    const method = fontCheck.calibration_method || 'heuristic_fallback';
+    const methodLabel = method === 'orange_strip_auto'
+      ? '💳 ID Card Auto-Detected (Orange Strip)'
+      : method === 'rectangle_auto'
+      ? '📐 ID Card Auto-Detected (Contour)'
+      : method === 'manual_corners'
+      ? '🎯 Manual ID Calibration'
+      : '📏 Heuristic Scale Fallback';
+
+    const pxMm = fontCheck.pixels_per_mm ? `${fontCheck.pixels_per_mm} px/mm` : '';
+    const reqH = fontCheck.required_height_mm ? `${fontCheck.required_height_mm}mm` : '2mm';
+    const avgH = fontCheck.average_font_height_mm ? `${fontCheck.average_font_height_mm}mm` : 'N/A';
+    const statusStr = fontCheck.status === 'PASS' ? '✅ PASS' : (fontCheck.status === 'FAIL' ? '❌ FAIL' : 'ℹ️ CHECKED');
+
+    fontElem.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span style="font-weight:700; color:#ffffff;">${methodLabel}</span>
+        <span style="font-size:11px; background:rgba(255,255,255,0.08); padding:2px 8px; border-radius:4px; color:var(--muted);">${pxMm}</span>
+      </div>
+      <div style="display:flex; gap:16px; font-size:12px; color:var(--trust-text);">
+        <span>Required Min: <strong>${reqH}</strong></span>
+        <span>Measured Avg: <strong>${avgH}</strong></span>
+        <span>Status: <strong>${statusStr}</strong></span>
+      </div>
+    `;
+  }
 
   // Render Rules Checklist
   const rulesList = document.getElementById('rules-list');
