@@ -108,6 +108,7 @@
 - Standard ISO 7810 ID-1 (85.6mm x 53.98mm) auto-card reference calibration engine in `backend/font_checker.py`.
 - HSV Orange-Strip Card Detection Strategy 1 with 4-stage false-positive protection (Size filter, Solidity convexity check > 0.82, Elongated aspect ratio > 2.0, and Card width sanity check 10%-85% of image width) to prevent orange product packaging from triggering false calibration.
 - CLAHE-enhanced multi-parameter contour detection Strategy 2 with adaptive blur/Canny edge parameters (blur 3-9, lo 15-50, hi 60-150, eps 0.02-0.06, ratio 1.1-2.1) to handle blurry/dark/angled photos taken by officers.
+- Rich Font Check UI rendering in `frontend/js/scan.js` displaying live calibration badges (`💳 ID Card Auto-Detected (Orange Strip)`, `📐 ID Card Auto-Detected (Contour)`, `📏 Heuristic Scale Fallback`), calculated `px/mm` scale, required font height, and measured average height.
 
 ### Tested
 - Database Risk Watchlist API query: PASSED
@@ -115,10 +116,10 @@
 - False-positive orange product packaging filter test (`cv2.rectangle` aspect ratio test): PASSED (Square orange packaging ignored, passed to Strategy 2 / heuristic)
 - ID Card narrow orange strip detection test (`px/mm=3.50`): PASSED
 - Synthetic rectangle contour calibration test (7.4% error margin): PASSED
+- Frontend Scan Results UI card method badge rendering: PASSED
 
 ### Status
-- Risk Watchlist Engine committed and pushed (`2b4618b`).
-- Card Auto-Detection Engine enhanced with false-positive protection ready for check-in.
+- All changes committed and pushed to GitHub (`b4b089a`).
 
 ### Next Steps
 - Validate user's decision before moving to the next component (per Rule 1).
