@@ -110,6 +110,7 @@
 - CLAHE-enhanced multi-parameter contour detection Strategy 2 with adaptive blur/Canny edge parameters (blur 3-9, lo 15-50, hi 60-150, eps 0.02-0.06, ratio 1.1-2.1) to handle blurry/dark/angled photos taken by officers.
 - Rich Font Check UI rendering in `frontend/js/scan.js` displaying live calibration badges (`💳 ID Card Auto-Detected (Orange Strip)`, `📐 ID Card Auto-Detected (Contour)`, `📏 Heuristic Scale Fallback`), calculated `px/mm` scale, required font height, and measured average height.
 - Added `CORSMiddleware` in `backend/main.py` allowing seamless cross-origin requests for local Wi-Fi / Mobile Hotspot (`0.0.0.0`) and tunneling tools (`localtunnel`, `ngrok`, `cloudflared`).
+- Mobile Phone Ultra-Responsive UI in `styles.css` & `frontend/css/style.css` (Fluid horizontal scroll locks `max-width: 100vw`, responsive navbar wrap, touch-scrollable tables, compact card paddings `14px 12px`, metric grid single-column stacking, and aspect-ratio constrained camera/canvas previews).
 
 ### Tested
 - Database Risk Watchlist API query: PASSED
@@ -119,9 +120,10 @@
 - Synthetic rectangle contour calibration test (7.4% error margin): PASSED
 - Frontend Scan Results UI card method badge rendering: PASSED
 - FastAPI CORS middleware initialization: PASSED
+- Mobile viewport responsive layout verification across 360px - 768px screens: PASSED
 
 ### Status
-- All changes committed and pushed to GitHub (`a7de8bd`).
+- All changes committed and pushed to GitHub (`135390e`).
 
 ### Next Steps
 - Validate user's decision before moving to the next component (per Rule 1).
